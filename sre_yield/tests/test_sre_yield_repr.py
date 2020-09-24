@@ -119,9 +119,11 @@ class ReprYieldTest(unittest.TestCase):
     def testBenchInputSlow(self):
         parsed = sre_yield.AllStrings("(?:[a-z]{,100})")
         out = repr(parsed.raw)
-        expected_re = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
+        expected_re1 = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
         if PY36:
-            expected_re = r"{combin \[\(%s, (\d+)\)\]}" % expected_re
+            expected_re = r"{combin \[\(%s, (\d+)\)\]}" % expected_re1
+        else:
+            expected_re = expected_re1
 
         m = re.match(expected_re, out)
         self.assertTrue(m)
@@ -137,7 +139,7 @@ class ReprYieldTest(unittest.TestCase):
         print(out)
 
         if PY36:
-            expected_re = r"{combin \[\(%s, (\d+)\)\]}" % expected_re
+            expected_re = expected_re1
 
         m = re.match(expected_re, out)
         self.assertTrue(m)
