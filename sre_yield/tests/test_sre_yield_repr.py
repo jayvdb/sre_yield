@@ -80,17 +80,17 @@ class ReprYieldTest(unittest.TestCase):
 
     def testGroup(self):
         parsed = sre_yield.AllStrings(r"(?:\d{2})")
+        expected = "{combin [({repeat base=10 low=2 high=2}, 100)]}"
         if PY36:
-            expected = "{combin [({combin [({repeat base=10 low=2 high=2}, 100)]}, 100)]}"
-        else:
-            expected = "{combin [({repeat base=10 low=2 high=2}, 100)]}"
+            expected = "{combin [(%s, 100)]}" % expected
+
         self.assertEqual(repr(parsed.raw), expected)
 
         parsed = sre_yield.AllStrings(r"(?:\d{,2})")
+        expected = "{combin [({repeat base=10 low=0 high=2}, 111)]}"
         if PY36:
-            expected = "{combin [({combin [({repeat base=10 low=2 high=2}, 111)]}, 111)]}"
-        else:
-            expected = "{combin [({repeat base=10 low=0 high=2}, 111)]}"
+            expected = "{combin [(%s, 111)]}" % expected
+
         self.assertEqual(repr(parsed.raw), expected)
 
     def testBenchInput(self):
@@ -120,24 +120,29 @@ class ReprYieldTest(unittest.TestCase):
         parsed = sre_yield.AllStrings("(?:[a-z]{,100})")
         out = repr(parsed.raw)
         print(out)
+        expected_re = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
         if PY36:
-            expected_re = r"{combin [\({combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}, (\d+)\)\]}"
-        else:
-            expected_re = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
+            expected_re = r"{combin \[\(%s, (\d+)\)\]}" % expected_re
+
         m = re.match(expected_re, out)
         self.assertTrue(m)
         base1 = m.group(1)
         repeat1 = m.group(2)
         self.assertEqual(int(base1), 26)
+        if PY36:
+            self.assertEqual(int(repeat1), int(m.group(3)))
 
         parsed = sre_yield.AllStrings("(?:(?:[a-z]{,100}){,100}){,100}")
         out = repr(parsed.raw)
         m = re.match(expected_re, out)
         base2 = m.group(1)
         repeat2 = m.group(2)
+        self.assertEqual(len(base2), 14152)
+        if PY36:
+            self.assertEqual(int(repeat2), int(m.group(3)))
+
         self.assertGreater(int(base2), int(base1))
         self.assertGreater(int(repeat2), int(repeat1))
-        self.assertEqual(len(base2), 14152)
 
 
 if __name__ == "__main__":
