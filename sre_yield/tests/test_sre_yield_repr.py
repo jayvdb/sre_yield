@@ -136,8 +136,6 @@ class ReprYieldTest(unittest.TestCase):
         parsed = sre_yield.AllStrings("(?:(?:[a-z]{,100}){,100}){,100}")
         out = repr(parsed.raw)
 
-        print(out)
-
         if PY36:
             expected_re = expected_re1
 
@@ -147,8 +145,6 @@ class ReprYieldTest(unittest.TestCase):
         base2 = m.group(1)
         repeat2 = m.group(2)
         self.assertEqual(len(base2), 14152)
-        if PY36:
-            self.assertEqual(int(repeat2), int(m.group(3)))
 
         self.assertGreater(int(base2), int(base1))
         self.assertGreater(int(repeat2), int(repeat1))
