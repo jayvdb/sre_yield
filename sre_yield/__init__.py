@@ -91,6 +91,8 @@ def slice_indices(slice_obj, size):
             start = size - 1
     else:
         start = _adjust_index(start, size, raise_index_error=False)
+        if step < 0:
+            start = min(start, size - 1)
 
     if stop is None:
         if step > 0:
@@ -99,6 +101,8 @@ def slice_indices(slice_obj, size):
             stop = -1
     else:
         stop = _adjust_index(stop, size, raise_index_error=False)
+        if step < 0:
+            stop = max(stop, -1)
 
     return (start, stop, step)
 
