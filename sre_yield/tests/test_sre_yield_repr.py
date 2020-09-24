@@ -15,9 +15,12 @@
 # limitations under the License.
 
 import re
+import sys
 import unittest
 
 import sre_yield
+
+PY36 = sys.version_info[0:2] == (3, 6)
 
 MAX_REPEAT_COUNT = sre_yield.MAX_REPEAT_COUNT
 
@@ -77,13 +80,18 @@ class ReprYieldTest(unittest.TestCase):
 
     def testGroup(self):
         parsed = sre_yield.AllStrings(r"(?:\d{2})")
-        self.assertEqual(
-            repr(parsed.raw), "{combin [({repeat base=10 low=2 high=2}, 100)]}"
-        )
+        if PY36:
+            expected = "{combin [({combin [({repeat base=10 low=2 high=2}, 100)]}, 100)]}"
+        else:
+            expected = "{combin [({repeat base=10 low=2 high=2}, 100)]}"
+        self.assertEqual(repr(parsed.raw), expected)
+
         parsed = sre_yield.AllStrings(r"(?:\d{,2})")
-        self.assertEqual(
-            repr(parsed.raw), "{combin [({repeat base=10 low=0 high=2}, 111)]}"
-        )
+        if PY36:
+            expected = "{combin [({combin [({repeat base=10 low=2 high=2}, 111)]}, 111)]}"
+        else:
+            expected = "{combin [({repeat base=10 low=0 high=2}, 111)]}"
+        self.assertEqual(repr(parsed.raw), expected)
 
     def testBenchInput(self):
         parsed = sre_yield.AllStrings("[01]{,10}")
@@ -111,7 +119,11 @@ class ReprYieldTest(unittest.TestCase):
     def testBenchInputSlow(self):
         parsed = sre_yield.AllStrings("(?:[a-z]{,100})")
         out = repr(parsed.raw)
-        expected_re = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
+        print(out)
+        if PY36:
+            expected_re = r"{combin [\({combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}, (\d+)\)\]}"
+        else:
+            expected_re = r"{combin \[\({repeat base=(\d+) low=0 high=100}, (\d+)\)\]}"
         m = re.match(expected_re, out)
         self.assertTrue(m)
         base1 = m.group(1)
