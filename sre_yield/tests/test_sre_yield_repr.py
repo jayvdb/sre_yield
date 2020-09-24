@@ -134,13 +134,13 @@ class ReprYieldTest(unittest.TestCase):
         parsed = sre_yield.AllStrings("(?:(?:[a-z]{,100}){,100}){,100}")
         out = repr(parsed.raw)
 
+        print(out)
+
         if PY36:
             expected_re = r"{combin \[\(%s, (\d+)\)\]}" % expected_re
 
         m = re.match(expected_re, out)
         self.assertTrue(m)
-
-        print(out)
 
         base2 = m.group(1)
         repeat2 = m.group(2)
